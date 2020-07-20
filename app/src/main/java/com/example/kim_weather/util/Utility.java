@@ -1,83 +1,78 @@
 package com.example.kim_weather.util;
 
-import android.text.TextUtils;
+import android.content.Context;
+import android.content.res.AssetManager;
+import android.util.JsonReader;
+import android.util.JsonToken;
 import android.util.Log;
 
-import com.example.kim_weather.db.City;
-import com.example.kim_weather.db.County;
-import com.example.kim_weather.db.Province;
+import com.example.kim_weather.db.cityId;
 import com.example.kim_weather.gson.Weather;
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.litepal.LitePal;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.List;
+
+import static org.litepal.LitePalApplication.getContext;
 
 public class Utility {
+    public static boolean saveCity() {
+        try {
+            InputStream is = null;
+            try {
 
-    public static boolean handleProvinceResponse(String response){
-        if(!TextUtils.isEmpty(response)){
-            try{
-                JSONArray allProvinces=new JSONArray(response);
-                for(int i=0;i<allProvinces.length();i++) {
-                    JSONObject provinceObject = allProvinces.getJSONObject(i);
-                    Province province=new Province();
-                    province.setProvinceName(provinceObject.getString("name"));
-                    province.setProvinceCode(provinceObject.getInt("id"));
-                    province.save();
+                is = getContext().getAssets().open("city.json");
+                JsonReader reader = new JsonReader(new InputStreamReader(is));
+                reader.beginArray();
+                while (reader.hasNext()) {
+
+                    reader.beginObject();
+                    String id = "";
+                    String CityEn = "";
+                    String provinceEn = "";
+                    while (reader.hasNext()) {
+                        String name = reader.nextName();
+                        if (name.equals("id")) {
+                            id = reader.nextString();
+                        } else if (name.equals("cityEn")) { // 当前获取的字段是否为：null
+                            CityEn = reader.nextString();
+                        } else if (name.equals("provinceEn")) { // 当前获取的字段是否为：null
+                            provinceEn = reader.nextString();
+                        }else {
+                            reader.skipValue();
+                        }
+
+                    }
+                    cityId cityId1 = new cityId();
+                    cityId1.setId(id);
+                    cityId1.setCityEn(CityEn);
+                    cityId1.setProvinceEn(provinceEn);
+                    cityId1.save();
+                    reader.endObject();
                 }
-                return true;
-                } catch (Exception e) {
-                e.printStackTrace();
+                reader.endArray();
+            } finally {
+                is.close();
             }
-        }return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return true;
     }
 
-    public static boolean handleCityResponse(String response,int provinceId){
-        if(!TextUtils.isEmpty(response)){
-            try{
 
-                if (response.startsWith("\ufeff")) {
-                    response = response.substring(1);
-                }
-                JSONArray allCities =new JSONArray(response);
-                for(int i=0;i<allCities.length();i++) {
-                    JSONObject provinceObject = allCities.getJSONObject(i);
-                   City city=new City();
-                    city.setCityName(provinceObject.getString("name"));
-                    city.setCityCode(provinceObject.getInt("id"));
-                    city.setProvinceId(provinceId);
-                    city.save();
-                }
-                return true;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }return false;
-    }
 
-    public static boolean handleCountyResponse(String response,int cityId){
-        if(!TextUtils.isEmpty(response)){
-            try{Log.d("AAA","response is " +response);
-                JSONArray allCounties=new JSONArray(response);
-                for(int i=0;i<allCounties.length();i++) {
-                    JSONObject countyObject = allCounties.getJSONObject(i);
-                    County county=new County();
-                    county.setCountyName(countyObject.getString("name"));
-                    county.setWeatherId(countyObject.getString("weather_id"));
-                    county.setCityId(cityId);
-                    county.save();
-                }
-                return true;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }return false;
-    }
     public static Weather handleWeatherResponse(String response){
         try{
             JSONObject jsonObject=new JSONObject(response);
-            JSONArray jsonArray=jsonObject.getJSONArray("HeWeather");
-            String weatherContent=jsonArray.getJSONObject(0).toString();
+            String weatherContent=jsonObject.toString();
             return new Gson().fromJson(weatherContent,Weather.class);
         }catch (Exception e){
             e.printStackTrace();

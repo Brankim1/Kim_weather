@@ -3,22 +3,21 @@ package com.example.kim_weather.gson;
 import com.google.gson.annotations.SerializedName;
 
 public class Forecast {
+
+    @SerializedName("date")
     public String date;
 
-    @SerializedName("tmp")
-    public Temperature temperature;
 
-    @SerializedName("cond")
-    public More more;
+    @SerializedName("tem1")
+    public String max;
+    @SerializedName("tem2")
+    public String min;
+    @SerializedName("tem")
+    public String now;
 
+    @SerializedName("wea")
+    public String weather;
 
-    public class Temperature {
-        public String max;
-        public String min;
-    }
-
-    public class More {
-        @SerializedName("txt_d")
-        public String info;
-    }
+    @SerializedName("air")
+    public String aqi;
 }
