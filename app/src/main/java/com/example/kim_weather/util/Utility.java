@@ -55,6 +55,7 @@ public class Utility {
                     cityId1.setCityEn(CityEn);
                     cityId1.setProvinceEn(provinceEn);
                     cityId1.save();
+
                     reader.endObject();
                 }
                 reader.endArray();
@@ -63,7 +64,7 @@ public class Utility {
             }
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }Log.d("第一个测试","第一个测试"+LitePal.findFirst(cityId.class).getCityEn());
         return true;
     }
 

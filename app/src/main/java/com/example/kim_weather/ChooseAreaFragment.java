@@ -1,12 +1,14 @@
 package com.example.kim_weather;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -23,6 +25,8 @@ import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static androidx.core.content.ContextCompat.getSystemService;
 
 public class ChooseAreaFragment extends Fragment {
 
@@ -53,6 +57,12 @@ public class ChooseAreaFragment extends Fragment {
         query.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //关闭键盘
+                InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (getView() != null && imm != null){
+                    imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+                }
+
                 cityName=textCity.getText().toString();
                 city1=LitePal.select("cityEn","cityid","provinceEn")
                         .where("cityEn=?",cityName)
@@ -89,7 +99,6 @@ public class ChooseAreaFragment extends Fragment {
                         activity.drawerLayout.closeDrawers();
                         activity.swipeRefresh.setRefreshing(true);
                         activity.requestWeather(weatherId);
-
                     }
 
                 }
