@@ -25,12 +25,12 @@ public class MainActivity extends AppCompatActivity {
         //第一次打开应用加载城市数据库
         SharedPreferences pre = getSharedPreferences("name",MODE_PRIVATE);
         boolean flag = pre.getBoolean("flag", false);
-
+        //以后打开不需要添加数据库
         if(flag == false){
             Utility.saveCity();
             pre.edit().putBoolean("flag", true).commit();
         }
-
+        //判断是否已经选择了城市
         SharedPreferences prefs= PreferenceManager.getDefaultSharedPreferences(this);
         if(prefs.getString("weather",null)!=null){
             Intent intent=new Intent(this,WeatherActivity.class);

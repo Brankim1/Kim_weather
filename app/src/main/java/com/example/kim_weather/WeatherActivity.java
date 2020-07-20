@@ -58,7 +58,7 @@ public class WeatherActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
-
+        //背景图
         bingPicImg=(ImageView)findViewById(R.id.bing_pic_img);
 
         weatherLayout=(ScrollView) findViewById(R.id.weather_layout);
@@ -68,13 +68,14 @@ public class WeatherActivity extends AppCompatActivity {
         weatherInfoText=(TextView)findViewById(R.id.weather_info_text);
         aqiText=(TextView)findViewById(R.id.aqi_text);
         forecastLayout=(LinearLayout)findViewById(R.id.forecast_layout);
+
         SharedPreferences prefs= PreferenceManager.getDefaultSharedPreferences(this);
         String weatherString=prefs.getString("weather",null);
-        if(weatherString!=null){
+        if(weatherString!=null){//已经选择城市
             Weather weather= Utility.handleWeatherResponse(weatherString);
             weatherId=weather.cityid;
             showWeatherInfo(weather);
-        }else{
+        }else{//未选择城市
             weatherId=getIntent().getStringExtra("weather_id");
             weatherLayout.setVisibility(View.INVISIBLE);
             requestWeather(weatherId);
@@ -83,11 +84,12 @@ public class WeatherActivity extends AppCompatActivity {
 
         String bingPic=prefs.getString("bing_pic",null);
         if(bingPic!=null){
-            Glide.with(this).load(bingPic).into(bingPicImg);
+            Glide.with(this).load(bingPic).into(bingPicImg);//加载图片
         }else{
             loadBingPic();
         }
 
+        //下拉刷新
         swipeRefresh=(SwipeRefreshLayout)findViewById(R.id.swipe_refresh);
         swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -97,6 +99,7 @@ public class WeatherActivity extends AppCompatActivity {
             }
         });
 
+        //抽屉
         drawerLayout=(DrawerLayout)findViewById(R.id.drawer_layout);
         navButton=(Button)findViewById(R.id.nav_button);
         navButton.setOnClickListener(new View.OnClickListener(){
@@ -133,8 +136,8 @@ public class WeatherActivity extends AppCompatActivity {
     }
 
     public void requestWeather(final String weatherId) {
-        this.weatherId=weatherId;
-        String weatherUrl="https://tianqiapi.com/api?version=v1&appid=44358372&appsecret=crWQWtd5&cityid="+weatherId;
+        this.weatherId=weatherId;//保存城市
+        String weatherUrl="https://tianqiapi.com/api?version=v1&appid=44358372&appsecret=crWQWtd5&cityid="+weatherId;//天气获取网址
         HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
@@ -151,12 +154,13 @@ public class WeatherActivity extends AppCompatActivity {
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 final String responseText=response.body().string();
-                final Weather weather=Utility.handleWeatherResponse(responseText);
+                final Weather weather=Utility.handleWeatherResponse(responseText);//gson解析json
 
                 runOnUiThread(new Runnable() {
                     @Override
                    public void run() {
                         if(weather!=null){
+                            //保存weather
                             SharedPreferences.Editor editor=PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
                             editor.putString("weather",responseText);
                             editor.apply();
@@ -181,6 +185,7 @@ public class WeatherActivity extends AppCompatActivity {
         degreeText.setText(degree);
         weatherInfoText.setText(weatherInfo);
         forecastLayout.removeAllViews();
+        //预报list
         for(Forecast forecast:weather.forecastList){
             View view= LayoutInflater.from(this).inflate(R.layout.forecast_item,forecastLayout,false);
             TextView dateText=(TextView)view.findViewById(R.id.date_text);

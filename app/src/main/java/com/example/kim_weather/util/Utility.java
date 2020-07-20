@@ -24,10 +24,11 @@ import static org.litepal.LitePalApplication.getContext;
 
 public class Utility {
     public static boolean saveCity() {
+        //只第一次打开使用
         try {
             InputStream is = null;
             try {
-
+                //解析city json文件
                 is = getContext().getAssets().open("city.json");
                 JsonReader reader = new JsonReader(new InputStreamReader(is));
                 reader.beginArray();
@@ -41,15 +42,16 @@ public class Utility {
                         String name = reader.nextName();
                         if (name.equals("id")) {
                             id = reader.nextString();
-                        } else if (name.equals("cityEn")) { // 当前获取的字段是否为：null
+                        } else if (name.equals("cityEn")) {
                             CityEn = reader.nextString();
-                        } else if (name.equals("provinceEn")) { // 当前获取的字段是否为：null
+                        } else if (name.equals("provinceEn")) {
                             provinceEn = reader.nextString();
                         }else {
                             reader.skipValue();
                         }
 
                     }
+                    //保存到数据库
                     cityId cityId1 = new cityId();
                     cityId1.setId(id);
                     cityId1.setCityEn(CityEn);
@@ -64,7 +66,7 @@ public class Utility {
             }
         } catch (IOException e) {
             e.printStackTrace();
-        }Log.d("第一个测试","第一个测试"+LitePal.findFirst(cityId.class).getCityEn());
+        }
         return true;
     }
 
@@ -72,6 +74,7 @@ public class Utility {
 
     public static Weather handleWeatherResponse(String response){
         try{
+            //解析天气api json文件
             JSONObject jsonObject=new JSONObject(response);
             String weatherContent=jsonObject.toString();
             return new Gson().fromJson(weatherContent,Weather.class);

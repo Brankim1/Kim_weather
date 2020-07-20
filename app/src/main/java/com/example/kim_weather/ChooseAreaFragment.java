@@ -50,28 +50,28 @@ public class ChooseAreaFragment extends Fragment {
         listView.setAdapter(adapter);
         return view;
     }
-
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         query.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 //关闭键盘
                 InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                 if (getView() != null && imm != null){
                     imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
                 }
-
+                //查询城市
                 cityName=textCity.getText().toString();
                 city1=LitePal.select("cityEn","cityid","provinceEn")
-                        .where("cityEn=?",cityName)
+                        .where("cityEn like ?","%"+cityName+"%")//模糊查询
                         .find(cityId.class);
                 if(city1.size()>0){
                     //添加数据进listview
                     dataList.clear();
                     for(cityId city:city1){
-                        dataList.add(city.getCityEn()+" , "+city.getProvinceEn());
+                        dataList.add(city.getCityEn()+" , "+city.getProvinceEn());//把数据加进listview
                     }
                     adapter.notifyDataSetChanged();
                     listView.setSelection(0);
@@ -86,7 +86,7 @@ public class ChooseAreaFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+                //选择城市
                 String weatherId=city1.get(position).getId();
                 Log.d("city","id id "+weatherId);
                     if(getActivity() instanceof MainActivity){
